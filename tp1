@@ -14,7 +14,7 @@ if len(imagen.shape) == 3:
 # Calcule el histograma de la imagen
 histograma, bins = np.histogram(imagen, bins=256, range=(0, 256))
 
-# Cre un gráfico de barras para el histograma
+# Cree un gráfico de barras para el histograma
 plt.figure(figsize=(10, 5))
 plt.title('Histograma de la imagen')
 plt.xlabel('Valor de píxel')

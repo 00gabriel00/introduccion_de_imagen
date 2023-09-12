@@ -1,0 +1,69 @@
+import numpy as np
+#para manipular matriz
+import matplotlib.pyplot as plt
+#realizar grafico plotear imagen
+import imageio
+#para entrada y salida de imagen
+imagen = imageio.imread('gatito.jpg')  
+#HISTOGRAMA
+
+# Converti la imagen a escala de grises si es a color
+if len(imagen.shape) == 3:
+    imagen = np.mean(imagen, axis=2).astype(np.uint8)
+
+# Calcule el histograma de la imagen
+histograma, bins = np.histogram(imagen, bins=256, range=(0, 256))
+
+# Cre un gráfico de barras para el histograma
+plt.figure(figsize=(10, 5))
+plt.title('Histograma de la imagen')
+plt.xlabel('Valor de píxel')
+plt.ylabel('Frecuencia')
+plt.bar(bins[:-1], histograma, width=1, alpha=0.7, color='b')
+plt.show()
+#RGB A YIQ
+imagen = np.clip(imagen / 255., 0., 1.)
+
+
+def rgb_a_yiq(imagen):
+    imagen_yiq = np.zeros(imagen.shape)
+    imagen_yiq[:, :, 0] = np.clip(
+        0.229 * imagen[:, :, 0] + 0.587 * imagen[:, :, 1] + 0.114 * imagen[:, :, 2],
+        a_min=0,
+        a_max=1
+    )
+    imagen_yiq[:, :, 1] = np.clip(
+        0.595716 * imagen[:, :, 0] + -0.274453 * imagen[:, :, 1] + -0.321263 * imagen[:, :, 2],
+        a_min=-0.5957,
+        a_max=0.5957
+    )
+    imagen_yiq[:, :, 2] = np.clip(
+        0.211456 * imagen[:, :, 0] + -0.522591 * imagen[:, :, 1] + 0.311135 * imagen[:, :, 2],
+        a_min=-0.5226,
+        a_max=0.5226
+    )
+    return  imagen_yiq
+#YIQ A RGB
+def yiq_a_rgb(imagen):
+    imagen_rgb = np.zeros(imagen.shape)
+    imagen_rgb[:, :, 0] = imagen[:, :, 0] + 0.9663 * imagen[:, :, 1] + 0.6210 * imagen[:, :, 2]
+    imagen_rgb[:, :, 1] = imagen[:, :, 0] + -0.2721 * imagen[:, :, 1] + -0.6474 * imagen[:, :, 2]
+    imagen_rgb[:, :, 2] = imagen[:, :, 0] + -1.1070 * imagen[:, :, 1] + 1.7046 * imagen[:, :, 2]
+    imagen_rgb = (imagen_rgb* 255).astype(int)
+    return np.clip(imagen_rgb, 0, 255)
+def parametros(imagen, param_a, param_b):
+    imagen2 = np.zeros(imagen.shape)
+    imagen2[:, :, 0] = imagen[:, :, 0] * param_a
+    imagen2[:, :, 1] = imagen[:, :, 1] * param_b
+    imagen2[:, :, 2] = imagen[:, :, 2] * param_b
+    return imagen2
+yiq = rgb_a_yiq(imagen)
+
+a = 3
+b = 8
+imagen_mod = parametros(yiq, a, b)
+
+rgb = yiq_a_rgb(imagen_mod)
+
+plt.imshow(rgb)
+plt.show()
